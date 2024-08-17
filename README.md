@@ -3,12 +3,11 @@ Like crazyflie-lib-python but written fully in c++
 
 ## How to install 
 
-1. `git clone --recursive https://github.com/M-R-VulcaN/crazyflie-lib-cpp.git`
+1. `git clone --recursive https://github.com/longlongago-zsc/crazyflie-lib-cpp.git`
 2. `cd crazyflie-lib-cpp/crazyflie-link-cpp`
 3. `git submodule init -- libusb/`
 4. `git submodule update -- libusb/`
-5. `sudo apt install -y libusb-1.0-0-dev`
-6. `cd ..`
+5. `cd ..`
 
 ## How to compile 
 1. `mkdir build && cd build`
