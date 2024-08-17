@@ -20,6 +20,7 @@ add_library(crazyflieLibCpp
 # C++ library
 target_include_directories(crazyflieLibCpp PUBLIC
   include
+  crazyflie-link-cpp/include
 )
 target_link_libraries(crazyflieLibCpp PUBLIC crazyflieLinkCpp)
 
