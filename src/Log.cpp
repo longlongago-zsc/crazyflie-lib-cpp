@@ -1,5 +1,6 @@
 #include "Log.h"
 #include <errno.h>
+#pragma warning(disable: 2398) 
 using bitcraze::crazyflieLinkCpp::Connection;
 using bitcraze::crazyflieLinkCpp::Packet;
 Log::Log(Toc &toc, ConnectionWorker &conWorker) : _tocPtr(&toc), _conWpr(conWorker), _conWorkerPtr(&conWorker)
@@ -95,13 +96,15 @@ int Log::createLogBlock(uint8_t logType, uint16_t logId)
         {
             data[1] = i;
             Packet p_recv = _conWpr.sendRecvData(0, data);
+            //std::cout << p_recv << std::endl;
             failCode = p_recv.payload()[2];
             if (EEXIST == failCode)
                 continue;
 
             if (LOG_SUCCESS == failCode)
             {
-                _logBlocks.insert({i,{_tocPtr->getItem(logId)}});
+                uint8_t ii = i;
+                _logBlocks.insert({ii,{_tocPtr->getItem(logId)}});
                 idsOccupied[i] = OccupiedStatus::OCCUPIED;
                 return i;
             }

@@ -4,3 +4,7 @@
 dist/
 *.egg-info
 .eggs
+/out/
+/enc_temp_folder/
+.vs
+/boost_1_80_0

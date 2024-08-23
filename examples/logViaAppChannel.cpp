@@ -17,15 +17,16 @@ using namespace bitcraze::crazyflieLinkCpp;
 
 int main()
 {
-    resetUSB();
+    //resetUSB();
 
-    Crazyflie crazyflie("usb://0");
+    Crazyflie crazyflie("udp://192.168.43.42");//usb://0
     // LoggingCrazyflieWrapper logging(crazyflie);
     // std::cout <<"pass"<<std::endl;
 
     crazyflie.init();
-
-    LoggingCrazyflieWrapper loggingWrapper(crazyflie, "out.txt");
-    loggingWrapper.start(true);
+    {
+        LoggingCrazyflieWrapper loggingWrapper(crazyflie, "out.txt");
+        loggingWrapper.start(true);
+    }
     return 0;
 }

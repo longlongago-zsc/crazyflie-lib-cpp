@@ -13,7 +13,7 @@ using namespace bitcraze::crazyflieLinkCpp;
 
 int main()
 {
-    Crazyflie crazyflie("usb://0");
+    Crazyflie crazyflie("udp://192.168.43.42");
 
     crazyflie.init();
 
@@ -33,7 +33,7 @@ int main()
         }
         if (i == 2)
         {
-            std::string path = "/home/makeruser/crazyflie-link-cpp-expanded";
+            static std::string path = crazyflie.getExecutablePath();
             std::string fileName = "toc.csv";
             crazyflie.csvParamToc(path, fileName);
         }

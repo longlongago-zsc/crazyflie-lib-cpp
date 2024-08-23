@@ -4,6 +4,8 @@ project(crazyflie-lib-cpp)
 #disable pybind11
 option(BUILD_PYTHON_BINDINGS OFF)
 
+add_definitions(-D_WIN32_WINNT=0x0601)
+
 # crazyflie-link-cpp dependencies
 add_subdirectory(crazyflie-link-cpp)
 
@@ -20,7 +22,10 @@ add_library(crazyflieLibCpp
 # C++ library
 target_include_directories(crazyflieLibCpp PUBLIC
   include
+  crazyflie-link-cpp/src
   crazyflie-link-cpp/include
+  boost_1_80_0
+  crazyflie-link-cpp/libusb/libusb
 )
 target_link_libraries(crazyflieLibCpp PUBLIC crazyflieLinkCpp)
 
@@ -82,6 +87,13 @@ target_link_libraries(example_logConnectionWorker
   crazyflieLibCpp
 )
 
+# example_crazyflieUdpLog
+add_executable(example_crazyflieUdpLog
+  examples/crazyfileUdpLog.cpp
+)
+target_link_libraries(example_crazyflieUdpLog
+  crazyflieLibCpp
+)
 
 # example_crazyflieLog
 add_executable(example_crazyflieLog

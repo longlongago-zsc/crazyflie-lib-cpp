@@ -21,7 +21,7 @@ bool appChannelCallback(const uint8_t *data, uint8_t dataLen)
 }
 int main()
 {
-    Crazyflie crazyflie("usb://0");
+    Crazyflie crazyflie("udp://192.168.43.42");//usb://0
 
     crazyflie.init();
 

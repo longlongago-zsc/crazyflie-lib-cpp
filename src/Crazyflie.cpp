@@ -1,4 +1,5 @@
 #include "Crazyflie.h"
+#include <windows.h>
 using namespace bitcraze::crazyflieLinkCpp;
 
 Crazyflie::Crazyflie(const std::string &uri) : _con(uri), _conWorker(_con), _conWrapperParamRead(_conWorker),
@@ -87,6 +88,48 @@ void Crazyflie::printLogToc()
     }
     std::cout << "Printed " << tocItemsVector.size() << " items total" << std::endl;
     std::cout << "=============================================" << std::endl;
+}
+
+std::string Crazyflie::getExecutablePath()
+{
+    std::string result;
+    char buffer[MAX_PATH] = { 0 };
+    ::GetCurrentDirectoryA(MAX_PATH, buffer);
+    result = buffer;
+    return result;
+}
+#include <iomanip>
+std::string floatToString(float value)
+{
+    std::ostringstream oss;
+    oss << std::setiosflags(std::ios::fixed) << std::setprecision(3) << value;
+    //oss << value;
+    return oss.str();
+}
+/*
+save the TOC with values to a csv file.
+input: path = the requested path.
+       fileName = the requested file name.
+*/
+void Crazyflie::csvLocToc(std::string path, std::string fileName)
+{
+    std::string filepath = path + "/" + fileName;
+    std::ofstream file;
+    file.open(filepath);
+
+    auto tocItemsVector = _logToc.getAllTocItems();
+
+    for (TocItem tocItem : tocItemsVector)
+    {
+        //tocParamsFile << tocItem;
+        file << (unsigned int)tocItem._id << "," << to_string(tocItem._accessType) << "," << to_string(tocItem._type) << "," << tocItem._groupName << "," << tocItem._name << ",";
+        if (to_string(tocItem._type).find("int") != std::string::npos)
+            file << getParamValFromCrazyflie<uint32_t>(tocItem._id) << std::endl;
+        else
+            file << floatToString(getParamValFromCrazyflie<float>(tocItem._id)) << std::endl;
+    }
+    std::cout << "saved " << tocItemsVector.size() << " parameters to a .csv file under the path: " << filepath << std::endl;
+    file.close();
 }
 
 bool Crazyflie::init()

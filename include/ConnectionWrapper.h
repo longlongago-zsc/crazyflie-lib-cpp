@@ -25,9 +25,8 @@ private:
 public:
     ConnectionWrapper(ConnectionWorker &conWorker);
 
-    ConnectionWrapper &operator=(bitcraze::crazyflieLinkCpp::Connection &con);
+    //ConnectionWrapper &operator=(bitcraze::crazyflieLinkCpp::Connection &con);
     template <class ValToSend>
-
     void send(const ValToSend &dataToSend, size_t sizeOfDataToSend = 0) const
     {
         bitcraze::crazyflieLinkCpp::Packet p_send;
@@ -93,13 +92,8 @@ public:
 
 void setPort(int port);
 void setChannel(int channel);
-
-void sendData(const void *data1, const size_t &data1_len, const void *data2 = nullptr, const size_t &data2_len = 0) const;
-
-
 ~ConnectionWrapper();
-}
-;
+};
 
 class PacketData
 {
@@ -115,21 +109,21 @@ public:
     {
     }
     template <class T>
-    PacketData(const T &data, const size_t &sizeOfData = 0)
+    PacketData(const T& data, const size_t& sizeOfData = 0)
     {
         this->appendData(data, sizeOfData);
     }
     template <class T>
-    void appendData(const T &data, const size_t &sizeOfData = 0)
+    void appendData(const T& data, const size_t& sizeOfData = 0)
     {
         uint8_t sizeToCopy;
 
         if (sizeOfData > 0)
-            sizeToCopy = std::min({(uint8_t)sizeOfData, (uint8_t)(CRTP_MAXSIZE - _currIndex), (uint8_t)sizeof(data)});
+            sizeToCopy = std::min({ (uint8_t)sizeOfData, (uint8_t)(CRTP_MAXSIZE - _currIndex), (uint8_t)sizeof(data) });
         else
             sizeToCopy = std::min((uint8_t)sizeof(data), (uint8_t)(CRTP_MAXSIZE - _currIndex));
 
-        std::copy_n((uint8_t *)&data, _currIndex, _data);
+        std::copy_n((uint8_t*)&data, _currIndex, _data);
         _currIndex += sizeToCopy;
     }
     std::array<uint8_t, CRTP_MAXSIZE> getData() const

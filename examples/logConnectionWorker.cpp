@@ -18,9 +18,9 @@
 
 int main()
 {
-    Crazyflie cf("usb://0");
+    Crazyflie cf("udp://192.168.43.42");
     cf.init();
-    // cf.addLogCallback(logCallback);
+    //cf.addLogCallback(logCallback);
     int i = 0;
     std::cin >> i;
     return 0;

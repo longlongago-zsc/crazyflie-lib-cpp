@@ -13,7 +13,7 @@
 #define PAYLOAD_VALUE_BEGINING_INDEX 3
 #define NOT_FOUND 0
 
-#define APP_CHANNEL 2
+#define APP_CHANNEL 1
 
 #define TOC_CHANNEL_LOG 0 //	Table of content access: Used for reading out the TOC
 
@@ -49,20 +49,21 @@ private:
     TocWrapper _paramTocWpr;
     bool _isRunning;
     std::thread _paramRecvThread;
-    public:
+public:
     Log _log;
     private:
     std::map<std::string,uint8_t> _logBlockNames;
     template <class Val>
-
     bool setParamValCrazyflie(uint16_t paramId, const Val &newValue)
     {
-        struct __attribute__((packed))
+#pragma pack(push, 1) // 设置按字节对齐
+        typedef struct data_t
         {
             uint16_t _paramId;
             Val _newValue;
-        } data = {paramId, newValue};
-
+        } data_t;
+        data_t data{ paramId, newValue };
+#pragma pack(pop) // 恢复默认对齐方式
         _conWrapperParamWrite.sendRecvData(0, data);
 
         return true;
@@ -105,11 +106,12 @@ public:
     void printParamToc();
     void csvParamToc(std::string path, std::string fileName);
     void printLogToc();
+    void csvLocToc(std::string path, std::string fileName);
     std::vector<std::pair<TocItem, ParamValue>> getTocAndValues();
 
     void sendAppChannelData(const void *data, const size_t &dataLen);
 
- 
+    std::string getExecutablePath();
 
     /**
      * Creates the entire log block
@@ -141,5 +143,4 @@ public:
      * If failed returns the error code as a negative integer. eg: -ENOENT = -2 
     */
     int resetLogBlocks();
-
 };

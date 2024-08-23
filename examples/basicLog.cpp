@@ -57,7 +57,7 @@ std::pair<uint16_t,std::string> enterIdOrName(uint16_t defaultId)
 
 int main()
 {
-    Crazyflie crazyflie("usb://0");
+    Crazyflie crazyflie("udp://192.168.43.42");
     
     const Toc &tocRef = crazyflie.getLogToc();
     crazyflie.init();
@@ -281,6 +281,8 @@ int main()
         
         case LOG_TOC_PRINT:
             {
+                static std::string path = crazyflie.getExecutablePath();
+                crazyflie.csvLocToc(path, "LogToc.csv");
                 crazyflie.printLogToc();
                 break;
             }
