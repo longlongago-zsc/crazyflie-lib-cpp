@@ -1,9 +1,6 @@
 cmake_minimum_required (VERSION 3.5)
 project(crazyflie-lib-cpp)
 
-#disable pybind11
-option(BUILD_PYTHON_BINDINGS OFF)
-
 add_definitions(-D_WIN32_WINNT=0x0601)
 
 # crazyflie-link-cpp dependencies
@@ -25,7 +22,6 @@ target_include_directories(crazyflieLibCpp PUBLIC
   crazyflie-link-cpp/src
   crazyflie-link-cpp/include
   boost_1_80_0
-  crazyflie-link-cpp/libusb/libusb
 )
 target_link_libraries(crazyflieLibCpp PUBLIC crazyflieLinkCpp)
 
@@ -68,14 +64,6 @@ add_executable(example_connectionWorkerTest
   examples/connectionWorkerTest.cpp
 )
 target_link_libraries(example_connectionWorkerTest
-  crazyflieLibCpp
-)
-
-# example_resetUsb
-add_executable(example_resetUsb
-  examples/resetUsb.cpp
-)
-target_link_libraries(example_resetUsb
   crazyflieLibCpp
 )
 
