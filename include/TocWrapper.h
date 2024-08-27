@@ -10,21 +10,21 @@
 #define CMD_TOC_INFO_V2 3 // version 2: up to 16k entries
 
 #ifdef __linux__
-// LinuxÆ½Ì¨Ïà¹Ø´úÂë
+// Linuxå¹³å°ç›¸å…³ä»£ç 
 typedef struct __attribute__((packed))
 {
     uint8_t _cmd;
     uint16_t _id;
 } TocItemData_t;
 #elif defined(_WIN32)
-// WindowsÆ½Ì¨Ïà¹Ø´úÂë
-#pragma pack(push, 1) // ÉèÖÃ°´×Ö½Ú¶ÔÆë
+// Windowså¹³å°ç›¸å…³ä»£ç 
+#pragma pack(push, 1) // è®¾ç½®æŒ‰å­—èŠ‚å¯¹é½
 struct TocItemData_t
 {
     uint8_t _cmd;
     uint16_t _id;
 };
-#pragma pack(pop) // »Ö¸´Ä¬ÈÏ¶ÔÆë·½Ê½
+#pragma pack(pop) // æ¢å¤é»˜è®¤å¯¹é½æ–¹å¼
 #endif
 
 class TocWrapper : WrapperTemplate<Toc, TocWrapper>

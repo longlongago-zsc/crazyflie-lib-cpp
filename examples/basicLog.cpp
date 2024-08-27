@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <chrono>
 #include <errno.h>
+#include <cstdint>
 #include "Crazyflie.h"
 
 using bitcraze::crazyflieLinkCpp::Connection;
@@ -33,7 +34,7 @@ enum UserChoices
 
 std::pair<uint16_t,std::string> enterIdOrName(uint16_t defaultId)
 {
-    char userInputStr[MAX_LEN_NAME];
+    char userInputStr[MAX_LEN_NAME] = { 0 };
 
     std::cout << "Enter log block id or group and name: (group.name) " << std::endl;
     uint16_t logBlockId = defaultId;
@@ -48,7 +49,7 @@ std::pair<uint16_t,std::string> enterIdOrName(uint16_t defaultId)
     }
     std::cin.ignore(INT32_MAX, '\n');
     std::cout << "Enter log group and name in the following format:(group.name): " << std::endl;
-    userInputStr[MAX_LEN_NAME] = 0;
+    userInputStr[MAX_LEN_NAME - 1] = 0;
 
     std::cin.getline(userInputStr, MAX_LEN_NAME - 1, '\n');
 
@@ -63,6 +64,7 @@ int main()
     crazyflie.init();
     Log& log = crazyflie._log;
     uint16_t currentId = 0;
+    std::vector<int> m_id;
     while (true)
     {
         uint16_t userInput = 0;
@@ -90,8 +92,7 @@ int main()
             std::cout << "Enter log group and name in the following format:(group.name): " << std::endl;
             std::cin.ignore(INT32_MAX, '\n');
             {
-                char userInputStr[MAX_LEN_NAME];
-                userInputStr[MAX_LEN_NAME] = 0;
+                char userInputStr[MAX_LEN_NAME] = { 0 };
 
                 std::cin.getline(userInputStr, MAX_LEN_NAME - 1, '\n');
 
@@ -152,6 +153,7 @@ int main()
                 }
                 else
                 {
+                    m_id.erase(std::remove(m_id.begin(), m_id.end(), response), m_id.end());
                     std::cout << "Successfully deleted log block!     Log Block Id = " <<response<<std::endl;
                 }
                 break;
@@ -174,6 +176,7 @@ int main()
                     }
                     else
                     {
+                        m_id.push_back(id);
                         std::cout << "Successfully started logging!     Log Block Id = " <<response<<std::endl;
                     }
                     break;
@@ -198,6 +201,7 @@ int main()
                     }
                     else
                     {
+                        m_id.erase(std::remove(m_id.begin(), m_id.end(), id), m_id.end());
                         std::cout << "Successfully Stopped logging!     Log Block Id = " <<response<<std::endl;
                     }
                 break;
@@ -219,63 +223,70 @@ int main()
 
         case LOG_RECEIVE:
 {
-            // std::cin.ignore(INT32_MAX, '\n');
+             std::cin.ignore(INT32_MAX, '\n');
 
-            // std::mutex mu;
-            // std::unique_lock<std::mutex> lock(mu);
-            // std::mutex *muPtr = &mu;
-            // std::condition_variable waitTillFinished;
-            // std::condition_variable *waitTillFinishedPtr = &waitTillFinished;
-            // std::atomic<bool> isFinished(false);
-            // std::atomic<bool> *isFinishedPtr = &isFinished;
-            // std::atomic<bool> isCallbackFinished(true);
-            // std::atomic<bool> *isCallbackFinishedPtr = &isCallbackFinished;
-            // for(int i = 0; i <MAX_UINT8; ++i)
-            // {
+             int id = 0;
+             std::cout << "Enter log id:" << std::endl;
+             std::cin >> id;
+             if (std::find(m_id.begin(), m_id.end(), id) == m_id.end())
+             {
+                 std::cout << "No such log id." << std::endl;
+                 break;
+             }
 
-            // }
-            // log.addLogCallback(,[log,isFinishedPtr,muPtr,waitTillFinishedPtr,isCallbackFinishedPtr]
-            // (const std::map<TocItem,void*>& tocItemsAndValues, uint32_t period){
-            //     *isCallbackFinishedPtr = false;
-            //     std::lock_guard<std::mutex> lock(*muPtr);
-            //     std::cout <<"  period:  " << period << "  val=  ";
-            //             for(auto element : tocItemsAndValues)
-            //             {
+             std::mutex mu;
+             std::unique_lock<std::mutex> lock(mu);
+             std::mutex *muPtr = &mu;
+             std::condition_variable waitTillFinished;
+             std::condition_variable *waitTillFinishedPtr = &waitTillFinished;
+             std::atomic<bool> isFinished(false);
+             std::atomic<bool> *isFinishedPtr = &isFinished;
+             std::atomic<bool> isCallbackFinished(true);
+             std::atomic<bool> *isCallbackFinishedPtr = &isCallbackFinished;
+             
+             log.addLogCallback(id, (LogBlockCallback)[log, isFinishedPtr, muPtr, waitTillFinishedPtr, isCallbackFinishedPtr]
+             (const std::map<TocItem, boost::spirit::hold_any>& tocItemsAndValues, uint32_t period){
+                 *isCallbackFinishedPtr = false;
+                 std::lock_guard<std::mutex> lock(*muPtr);
+                 std::cout <<"  period:  " << period << "  val=  ";
+                         for(auto element : tocItemsAndValues)
+                         {
                         
-            //                 if(to_string(element.first._type).find("uint")!=std::string::npos)
-            //                 {
-            //                     uint32_t res = 0;
-            //                     std::memcpy(&res, element.second,element.first._type.size());
-            //                     std::cout << res;
-            //                 }
-            //                 else if (to_string(element.first._type).find("int")!=std::string::npos)
-            //                 {
-            //                     int32_t res = 0;
-            //                     std::memcpy(&res, element.second,element.first._type.size());
-            //                     std::cout << res;
-            //                 }
-            //                 else if (element.first._type == "float")
-            //                 {
-            //                     std::cout << *(float*)element.second;
-            //                 }
-            //                 std::cout <<"  ";
-            //             }
-            //             std::cout << std::endl;
+                             if(to_string(element.first._type).find("uint")!=std::string::npos)
+                             {
+                                 uint32_t res = 0;
+                                 std::memcpy(&res, (void*)&element.second,element.first._type.size());
+                                 std::cout << res;
+                             }
+                             else if (to_string(element.first._type).find("int")!=std::string::npos)
+                             {
+                                 int32_t res = 0;
+                                 std::memcpy(&res, (void*)&element.second,element.first._type.size());
+                                 std::cout << res;
+                             }
+                             else if (element.first._type == "float")
+                             {
+                                 std::cout << *(float*)(&element.second);
+                             }
+                             std::cout <<"  ";
+                         }
+                         std::cout << std::endl;
 
-            //     if ((bool)*isFinishedPtr)
-            //     {
-            //         *isCallbackFinishedPtr = true;
-            //         waitTillFinishedPtr->notify_all();
-            //         return false;
-            //     }
-            //     return true;
-            // }); 
-            // std::cout << "Press enter to stop receiving"<<std::endl;
-            // lock.unlock();
-            // std::cin.getline(nullptr,0,'\n'); 
-            // lock.lock(); 
-            // isFinished = true;
-            // waitTillFinished.wait(lock,[isCallbackFinishedPtr](){return (bool)*isCallbackFinishedPtr;});       
+                 if ((bool)*isFinishedPtr)
+                 {
+                     *isCallbackFinishedPtr = true;
+                     waitTillFinishedPtr->notify_all();
+                     return false;
+                 }
+                 return true;
+             }); 
+             /*std::cout << "Press enter to stop receiving"<<std::endl;
+             lock.unlock();
+             std::string str;
+             std::cin >> str;
+             lock.lock();*/ 
+             //isFinished = true;
+             waitTillFinished.wait(lock,[isCallbackFinishedPtr](){return (bool)*isCallbackFinishedPtr;});       
             break;
         }
         

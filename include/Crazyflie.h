@@ -56,14 +56,14 @@ public:
     template <class Val>
     bool setParamValCrazyflie(uint16_t paramId, const Val &newValue)
     {
-#pragma pack(push, 1) // ÉèÖÃ°´×Ö½Ú¶ÔÆë
+#pragma pack(push, 1) // è®¾ç½®æŒ‰å­—èŠ‚å¯¹é½
         typedef struct data_t
         {
             uint16_t _paramId;
             Val _newValue;
         } data_t;
         data_t data{ paramId, newValue };
-#pragma pack(pop) // »Ö¸´Ä¬ÈÏ¶ÔÆë·½Ê½
+#pragma pack(pop) // æ¢å¤é»˜è®¤å¯¹é½æ–¹å¼
         _conWrapperParamWrite.sendRecvData(0, data);
 
         return true;
